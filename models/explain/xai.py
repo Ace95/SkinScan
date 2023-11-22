@@ -14,7 +14,7 @@ from torchvision.transforms import (
     ToTensor,
 )
 
-image = Image.open("./imgs/ISIC_0024867.jpg") 
+image = Image.open("./imgs/ISIC_0024306.jpg") 
 model_path = "C:/Users/User/Documents/Corsi Uni/Tesi/models/HAM10k_ft/swinv2-base-patch4-window12-192-22k-finetuned-HAM10k_NOCROP"
 model = AutoModelForImageClassification.from_pretrained(model_path)
 image_processor = AutoImageProcessor.from_pretrained(model_path) 
