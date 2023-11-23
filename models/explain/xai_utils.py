@@ -114,7 +114,7 @@ def run_dff_on_image(model: torch.nn.Module,
                      img_pil,
                      img_tensor: torch.Tensor,
                      reshape_transform=Optional[Callable],
-                     n_components: int = 4,
+                     n_components: int = 3,
                      top_k: int = 2) -> np.ndarray:
 
     rgb_img_float = np.array(img_pil) / 255
@@ -135,7 +135,7 @@ def run_dff_on_image(model: torch.nn.Module,
     visualization = show_factorization_on_image(
         rgb_img_float,
         batch_explanations[0],
-        image_weight=0.7,
+        image_weight=0.4,
         concept_labels=concept_label_strings)
 
     result = np.hstack((np.array(img_pil), visualization))
@@ -149,7 +149,7 @@ def show_factorization_on_image(img: np.ndarray,
                                 concept_labels: List = None) -> np.ndarray:
     n_components = explanations.shape[0]
     if colors is None:
-        _cmap = plt.cm.get_cmap('jet')
+        _cmap = plt.cm.get_cmap('tab20')
         colors = [
             np.array(
                 _cmap(i)) for i in np.arange(
