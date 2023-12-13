@@ -6,14 +6,11 @@ from deep_feature_factorization import ActivationsAndGradients, scale_cam_image
 
 """ Function to reshape activations into 2D projections """
 def get_2d_projection(activation_batch):
-    # TBD: use pytorch batch svd implementation
     activation_batch[np.isnan(activation_batch)] = 0
     projections = []
     for activations in activation_batch:
         reshaped_activations = (activations).reshape(
             activations.shape[0], -1).transpose()
-        # Centering before the SVD seems to be important here,
-        # Otherwise the image returned is negative
         reshaped_activations = reshaped_activations - \
             reshaped_activations.mean(axis=0)
         U, S, VT = np.linalg.svd(reshaped_activations, full_matrices=True)
@@ -51,10 +48,6 @@ class BaseCAM:
         self.uses_gradients = uses_gradients
         self.activations_and_grads = ActivationsAndGradients(
             self.model, target_layers, reshape_transform)
-
-    """ Get a vector of weights for every channel in the target layer.
-        Methods that return weights channels,
-        will typically need to only implement this function. """
 
     def get_cam_weights(self,
                         input_tensor: torch.Tensor,
@@ -108,15 +101,6 @@ class BaseCAM:
                        for target, output in zip(targets, outputs)])
             loss.backward(retain_graph=True)
 
-        # In most of the saliency attribution papers, the saliency is
-        # computed with a single target layer.
-        # Commonly it is the last convolutional layer.
-        # Here we support passing a list with multiple target layers.
-        # It will compute the saliency image for every image,
-        # and then aggregate them (with a default mean aggregation).
-        # This gives you more flexibility in case you just want to
-        # use all conv layers for example, all Batchnorm layers,
-        # or something else.
         cam_per_layer = self.compute_cam_per_layer(input_tensor,
                                                    targets,
                                                    eigen_smooth)
@@ -202,7 +186,7 @@ class BaseCAM:
     def __call__(self,
                  input_tensor: torch.Tensor,
                  targets: List[torch.nn.Module] = None,
-                 aug_smooth: bool = False,
+                 aug_smooth: bool = True,
                  eigen_smooth: bool = False) -> np.ndarray:
 
         # Smooth the CAM result with test time augmentation

@@ -14,8 +14,8 @@ from torchvision.transforms import (
     ToTensor,
 )
 
-image = Image.open("./imgs/ISIC_0024306.jpg") 
-model_path = "C:/Users/User/Documents/Corsi Uni/Tesi/models/HAM10k_ft/swinv2-base-patch4-window12-192-22k-finetuned-HAM10k_NOCROP"
+image = Image.open("./imgs/ISIC_0026876.jpg")
+model_path = "C:/Users/User/Documents/Corsi Uni/Tesi/models/HAM10k_ft/Swinv2_"
 model = AutoModelForImageClassification.from_pretrained(model_path)
 image_processor = AutoImageProcessor.from_pretrained(model_path) 
 
@@ -71,6 +71,6 @@ dff_img = Image.fromarray(run_dff_on_image(model=model,
                           img_pil=image,
                           img_tensor=img_tensor,
                           reshape_transform=reshape_transform,
-                          n_components=4,
-                          top_k=2))
+                          n_components=3,
+                          top_k=3))
 dff_img.save("./dff_img.png")

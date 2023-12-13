@@ -1,6 +1,7 @@
 from pgmpy.models import BayesianNetwork
 from pgmpy.factors.discrete import TabularCPD
 from pgmpy.inference import VariableElimination
+from pgmpy.sampling import BayesianModelSampling
 
 model = BayesianNetwork([('UV','BKL'),('UV','MEL'),('UV','BCC'),('UV','AKIEC'),('RAD','BCC'),('GEN','MEL'),('AGE','AKIEC'),('GEN','DF'),('AGE','MEL'),
                          ('AGE','VASC'),('AGE','BCC'),('AGE','BKL'),('TRA','VASC'),('TRA','DF'),('MEL','BLE'),('MEL','MOL'),('VASC','BLE'),('BCC','BLE'),('BCC','BUM'),
@@ -34,7 +35,7 @@ cpd_vasc = TabularCPD(variable='VASC', variable_card = 2, values = [[0.0007,0.00
                      evidence = ['TRA','AGE'], evidence_card = [2,3])
 
 
-# Symptoms CPDs
+# Signs CPDs
 cpd_sca = TabularCPD(variable='SCA', variable_card = 2, values = [[0.8,0.65,0.75,0.0001],[0.2,0.35,0.25,0.9999]], 
                      evidence = ['BKL','AKIEC'], evidence_card = [2,2])
 
@@ -56,6 +57,18 @@ model.check_model()
 
 
 # Exact inference (variable elimination)
+evidence={"UV":1, "TRA":1, "GEN":0, "AGE":0, "MOL":0, "BUM":0, "BLE":0, "SCA":0, "SMO":1, "RAD":1}
+
 infer = VariableElimination(model)
-posterior_p = infer.query(["AKIEC"], evidence={"UV":1, "TRA":1, "GEN":0, "AGE":0, "MOL":0, "BUM":0, "BLE":0, "SCA":0, "SMO":1, "RAD":1})
+posterior_p = infer.query(["AKIEC"], evidence=evidence)
 print(posterior_p)
+
+# Approx inference (Rejection Sampling)
+sampler = BayesianModelSampling(model)
+samples = sampler.rejection_sample(evidence=evidence.items(),size=10000)
+print(samples['AKIEC'].value_counts(normalize=True))
+
+# Approx inference (Likelihood Weighting)
+sampler = BayesianModelSampling(model)
+samples = sampler.likelihood_weighted_sample(evidence=evidence.items(),size=10000)
+print(samples['AKIEC'].value_counts(normalize=True))

@@ -94,7 +94,7 @@ class DeepFeatureFactorization:
 
     def __call__(self,
                  input_tensor: torch.Tensor,
-                 n_components: int = 16):
+                 n_components: int = 5):
         batch_size, channels, h, w = input_tensor.size()
         _ = self.activations_and_grads(input_tensor)
 
